@@ -72,9 +72,32 @@ function afficherPanier(): void {
   compteur.textContent = String(nombreArticles(panier));
 }
 
-function afficherCatalogue(): void {
-  zoneCatalogue.replaceChildren(...catalogue.map(creerCarte));
+function produitsAffiches(): Produit[] {
+  const categorie = filtreCategorie.value;
+  const texte = champRecherche.value.trim().toLowerCase();
+
+  return catalogue.filter((produit) => {
+    const bonneCategorie = categorie === "toutes" || produit.categorie === categorie;
+    const bonNom = produit.nom.toLowerCase().includes(texte);
+    return bonneCategorie && bonNom;
+  });
 }
+
+function afficherCatalogue(): void {
+  const produits = produitsAffiches();
+
+  if (produits.length === 0) {
+    const message = document.createElement("p");
+    message.textContent = "Aucun produit ne correspond à votre recherche.";
+    zoneCatalogue.replaceChildren(message);
+    return;
+  }
+
+  zoneCatalogue.replaceChildren(...produits.map(creerCarte));
+}
+
+champRecherche.addEventListener("input", afficherCatalogue);
+filtreCategorie.addEventListener("change", afficherCatalogue);
 
 console.log("La boutique démarre");
 
